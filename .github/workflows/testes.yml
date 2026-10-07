@@ -23,5 +23,5 @@ jobs:
             
             - name: onde eu estou
               run: |
-                echo "workspace: $GITHUB_WOKSPACE"
+                echo "workspace: $GITHUB_WORKSPACE"
                 ls -la "$GITHUB_WOKSPACE"
