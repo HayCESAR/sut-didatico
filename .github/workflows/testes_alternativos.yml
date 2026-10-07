@@ -23,7 +23,7 @@
 #
 # ANTES DO PRIMEIRO PUSH, ajuste as linhas marcadas com (1).
 
-name: testes
+name: testes alternativos
 
 on:
   push:
@@ -60,7 +60,7 @@ env:
   TAS_REF: 'main'                             # ver nota sobre fixar versão, no fim do arquivo
   PORT: '3000'
   BASE_URL: 'http://localhost:3000'
-  MAESTRO_VERSION: '1.39.0'           # (1) AJUSTAR: confirmar versão corrente
+  MAESTRO_VERSION: '2.9.0'           # (1) AJUSTAR: confirmar versão corrente
 
 jobs:
 
