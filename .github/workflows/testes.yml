@@ -5,6 +5,9 @@ on:
         paths-ignore: ['**/*.md', ' /docs/**']
     workflow_dispatch:
 
+env:
+    BASE_URL: 'http://localhost:3000'
+
 jobs:
     regressao:
         name: 'regressao'
