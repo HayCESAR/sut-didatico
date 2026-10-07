@@ -152,11 +152,12 @@ jobs:
           fi
 
       - name: abre item de manutencao
-        if: failure()
+        if: failure() && github.event_name == 'schedule'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh issue create \
-            --title "A suite de regressao reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
+            --title "Regressao noturna reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
             --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --label manutencao
