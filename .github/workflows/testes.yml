@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: '24'
 
-      - name: testes de unidade
+      - name: suite de unitarios
         id: unidade
         working-directory: tas
         env:
@@ -59,6 +59,17 @@ jobs:
           echo "::error::SUT nao respondeu em 60s"
           tail -n 50 "$GITHUB_WORKSPACE/sut.log" || echo "(log vazio)"
           exit 1
+      
+      - name: suite de API
+        id: api
+        working-directory: tas
+        env:
+          NODE_OPTIONS: >-
+            --test-reporter=spec  --test-reporter-destination=stdout
+            --test-reporter=junit --test-reporter-destination=relatorios/api.xml
+        run: |
+          mkdir -p relatorios
+          npm run test:api
           
       - name: publica evidencias
         if: always()
@@ -69,4 +80,4 @@ jobs:
             tas/relatorios/
             sut.log
           retention-days: 14
-          if-no-files-found: err
+          if-no-files-found: warn
