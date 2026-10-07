@@ -144,9 +144,9 @@ jobs:
           api_result='${{ steps.api.outcome }}'
           e2e_result='${{ steps.e2e.outcome }}'
           falhas=''
-          [ "$unidade_result" != 'success' ] && falhas="$falhas unidade"
-          [ "$api_result" != 'success' ] && falhas="$falhas api"
-          [ "$e2e_result" != 'success' ] && falhas="$falhas e2e"
+          [ "$unidade_result" == 'failure' ] && falhas="$falhas unidade"
+          [ "$api_result" == 'failure' ] && falhas="$falhas api"
+          [ "$e2e_result" == 'failure' ] && falhas="$falhas e2e"
           echo "falhas=$(echo $falhas)" >> "$GITHUB_OUTPUT"
           if [ -n "$falhas" ]; then
             echo "::error::regressao reprovou em:$falhas"; exit 1
@@ -156,8 +156,9 @@ jobs:
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh issue create \
-            --title "A suiteegressao reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
+            --title "Regressao noturna reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
             --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --label manutencao
