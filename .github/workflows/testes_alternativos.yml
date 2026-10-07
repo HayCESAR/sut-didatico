@@ -23,7 +23,7 @@
 #
 # ANTES DO PRIMEIRO PUSH, ajuste as linhas marcadas com (1).
 
-name: testes alternativos
+name: testes
 
 on:
   push:
@@ -60,7 +60,10 @@ env:
   TAS_REF: 'main'                             # ver nota sobre fixar versão, no fim do arquivo
   PORT: '3000'
   BASE_URL: 'http://localhost:3000'
-  MAESTRO_VERSION: '2.9.0'           # (1) AJUSTAR: confirmar versão corrente
+  # Versão confirmada localmente, onde os fluxos web executam. Fluxos com
+  # cabeçalho `url:` exigem suporte a web; versões anteriores recusam o fluxo
+  # pedindo `appId`. Ao atualizar, rode `maestro --version` e troque aqui.
+  MAESTRO_VERSION: '2.9.0'
 
 jobs:
 
@@ -274,13 +277,47 @@ jobs:
           tail -n 50 "$GITHUB_WORKSPACE/sut.log" || true
           exit 1
 
+      # O Maestro baixa o próprio Chromium na primeira execução web. Sem cache,
+      # cada runner frio paga esse download inteiro.
+      - name: cache do Maestro
+        uses: actions/cache@v4   # (1) conferir se já existe major com node24
+        with:
+          path: ~/.maestro
+          key: maestro-${{ runner.os }}-${{ env.MAESTRO_VERSION }}
+
       - name: instala o Maestro
+        env:
+          MAESTRO_CLI_NO_ANALYTICS: '1'   # evita o prompt interativo em CI
         run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | MAESTRO_VERSION="$MAESTRO_VERSION" bash
+          export MAESTRO_VERSION="${{ env.MAESTRO_VERSION }}"
+          curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-      - name: versao do Maestro
-        run: maestro --version
+      # Falha aqui, com mensagem clara, em vez de falhar depois com
+      # "missing appId", que parece erro de fluxo e é erro de versão.
+      - name: confere a versao instalada
+        run: |
+          instalada=$(maestro --version 2>&1)
+          echo "maestro instalado: $instalada"
+          echo "maestro esperado:  $MAESTRO_VERSION"
+          # Comparação por conteúdo, e não por igualdade exata: a saída de
+          # `maestro --version` pode trazer texto além do número.
+          if ! printf '%s' "$instalada" | grep -qF "$MAESTRO_VERSION"; then
+            echo "::error::versao do Maestro diferente da fixada em MAESTRO_VERSION"
+            exit 1
+          fi
+
+      # O driver web do Maestro sobe o Chrome do sistema via Selenium, em modo
+      # com janela. O runner não tem servidor gráfico, e o Chrome morre ao
+      # iniciar ("Chrome instance exited"). O xvfb-run fornece um display
+      # virtual e resolve sem depender de flag da ferramenta.
+      - name: garante o display virtual
+        run: |
+          if ! command -v xvfb-run >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y xvfb
+          fi
+          echo "xvfb-run: $(command -v xvfb-run)"
+          echo "chrome:   $(google-chrome --version 2>/dev/null || echo 'ausente')"
 
       - name: estado inicial conhecido
         run: curl -s -X POST "$BASE_URL/api/v1/_test/reset" -o /dev/null
@@ -289,10 +326,14 @@ jobs:
         working-directory: tas
         run: |
           mkdir -p relatorios
-          maestro test tests/e2e/maestro \
-            --include-tags smoke \
-            --format junit \
-            --output relatorios/maestro-junit.xml
+          xvfb-run -a --server-args="-screen 0 1280x1024x24" \
+            maestro test tests/e2e/maestro \
+              --include-tags smoke \
+              --format junit \
+              --output relatorios/maestro-junit.xml
+          # Alternativa, se a sua versão do Maestro expuser modo sem janela:
+          #   maestro test --headless tests/e2e/maestro ...
+          # Confirme na documentação. O xvfb-run funciona nos dois casos.
 
       - name: publica evidencias do E2E
         if: always()
