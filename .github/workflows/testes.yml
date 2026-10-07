@@ -135,3 +135,26 @@ jobs:
             sut.log
           retention-days: 14
           if-no-files-found: warn
+      
+      - name: veredito da regressao
+        id: veredito
+        run: |
+          node_r='${{ steps.node.outcome }}'
+          maestro_r='${{ steps.maestro.outcome }}'
+          falhas=''
+          [ "$node_r" != 'success' ] && falhas="$falhas unidade/api"
+          [ "$maestro_r" != 'success' ] && falhas="$falhas e2e"
+          echo "falhas=$(echo $falhas)" >> "$GITHUB_OUTPUT"
+          if [ -n "$falhas" ]; then
+            echo "::error::regressao reprovou em:$falhas"; exit 1
+          fi
+
+      - name: abre item de manutencao
+        if: failure() && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "Regressao noturna reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
+            --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --label manutencao
