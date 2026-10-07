@@ -138,6 +138,7 @@ jobs:
       
       - name: veredito da regressao
         id: veredito
+        if: always()
         run: |
           unidade_result='${{ steps.unidade.outcome }}'
           api_result='${{ steps.api.outcome }}'
@@ -152,12 +153,11 @@ jobs:
           fi
 
       - name: abre item de manutencao
-        if: failure() && github.event_name == 'schedule'
+        if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
         run: |
           gh issue create \
-            --title "Regressao noturna reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
+            --title "A suiteegressao reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
             --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --label manutencao
