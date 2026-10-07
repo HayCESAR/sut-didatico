@@ -65,6 +65,8 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: evidencias-unidade-${{ github.run_id }}
-          path: tas/relatorios/
+          path: |
+            tas/relatorios/
+            sut.log
           retention-days: 14
-          if-no-files-found: warn
+          if-no-files-found: err
