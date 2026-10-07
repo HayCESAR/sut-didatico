@@ -152,7 +152,7 @@ jobs:
           fi
 
       - name: abre item de manutencao
-        if: failure() && github.event_name == 'schedule'
+        if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
