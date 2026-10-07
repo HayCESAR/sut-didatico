@@ -70,7 +70,29 @@ jobs:
         run: |
           mkdir -p relatorios
           npm run test:api
-          
+      
+      - name: diagnostico pos-falha
+        if: failure()
+        run: |
+          {
+            echo "### Diagnostico"
+            echo "Health apos a falha: \`$(curl -s -o /dev/null -w '%{http_code}' "$BASE_URL/api/v1/demands" || echo 'sem resposta')\`"
+            echo '```'
+            tail -n 80 "$GITHUB_WORKSPACE/sut.log" 2>/dev/null || echo "(sem log do SUT)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      
+      - name: resumo dos estagios
+        if: always()
+        run: |
+          {
+            echo "## Estagios 1 e 2"
+            echo "| Suite | Resultado |"
+            echo "|---|---|"
+            echo "| unidade | ${{ steps.unidade.outcome }} |"
+            echo "| api | ${{ steps.api.outcome }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: publica evidencias
         if: always()
         uses: actions/upload-artifact@v6
