@@ -280,7 +280,7 @@ jobs:
       # O Maestro baixa o próprio Chromium na primeira execução web. Sem cache,
       # cada runner frio paga esse download inteiro.
       - name: cache do Maestro
-        uses: actions/cache@v4   # (1) conferir se já existe major com node24
+        uses: actions/cache@v5
         with:
           path: ~/.maestro
           key: maestro-${{ runner.os }}-${{ env.MAESTRO_VERSION }}
@@ -395,7 +395,7 @@ jobs:
 
       # ---------- preparação do E2E, sobre o SUT já no ar ----------
       - name: cache do Maestro
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.maestro
           key: maestro-${{ runner.os }}-${{ env.MAESTRO_VERSION }}
@@ -522,6 +522,7 @@ jobs:
 #      actions/checkout@v4        -> @v5   (primeiro major com node24)
 #      actions/setup-node@v4      -> @v5   (idem)
 #      actions/upload-artifact@v4 -> @v6   (v5 ainda usa node20)
+#      actions/cache@v4           -> @v5
 #
 #    Calendário anunciado pelo GitHub: Node 24 forçado a partir de
 #    2026-06-02, e Node 20 removido do runner em 2026-09-16. Confirme o
