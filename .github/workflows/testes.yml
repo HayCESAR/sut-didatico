@@ -40,5 +40,13 @@ jobs:
         run: |
           mkdir -p relatorios
           npm run test:unidade
-        
+          
+      - name: publica evidencias
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: evidencias-unidade-${{ github.run_id }}
+          path: tas/relatorios/
+          retention-days: 14
+          if-no-files-found: warn
         
