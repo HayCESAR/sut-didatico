@@ -139,11 +139,13 @@ jobs:
       - name: veredito da regressao
         id: veredito
         run: |
-          node_r='${{ steps.node.outcome }}'
-          maestro_r='${{ steps.maestro.outcome }}'
+          unidade_result='${{ steps.unidade.outcome }}'
+          api_result='${{ steps.api.outcome }}'
+          e2e_result='${{ steps.e2e.outcome }}'
           falhas=''
-          [ "$node_r" != 'success' ] && falhas="$falhas unidade/api"
-          [ "$maestro_r" != 'success' ] && falhas="$falhas e2e"
+          [ "$unidade_result" != 'success' ] && falhas="$falhas unidade"
+          [ "$api_result" != 'success' ] && falhas="$falhas api"
+          [ "$e2e_result" != 'success' ] && falhas="$falhas e2e"
           echo "falhas=$(echo $falhas)" >> "$GITHUB_OUTPUT"
           if [ -n "$falhas" ]; then
             echo "::error::regressao reprovou em:$falhas"; exit 1
