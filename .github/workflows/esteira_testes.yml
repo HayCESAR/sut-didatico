@@ -1,13 +1,15 @@
 name: testes
 
 on:
+  push:
+    paths-ignore: [ '**/*.md', 'docs/**' ]
   workflow_dispatch:
 
 env:
   BASE_URL: 'http://localhost:3000'
 
 jobs:
-  rapido:
+  testando:
     name: 'testando esteira'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -162,6 +164,6 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           gh issue create \
-            --title "Regressao noturna reprovou em $(date +%F): ${{ steps.veredito.outputs.falhas }}" \
+            --title "A suite de regressao reprovou em $(date +%F): suite de ${{ steps.veredito.outputs.falhas }}" \
             --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --label manutencao
