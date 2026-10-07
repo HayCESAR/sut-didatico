@@ -42,14 +42,32 @@ jobs:
               run: |
                 mkdir -p relatorios
                 npm run test:unidade
+
+            - name: sobe o SUT em segundo plano
+              working-directory: sut-didatico
+              run: nohup npm start > "GITHUB_WORKSPACE/sut.log" 2>&1 &
+
+            - name: aguardar o SUT responder
+              run: |
+                for i in $(seq 1 60); do
+                    code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE_URL/api/v1/demands" || true)
+                    if [ "$code" = "401" ] || [ "$code" = "200" ]; then
+                        echo "SUT respondeu em ${i}s (HTTP $code)"; exit 0
+                    fi
+                    sleep 1
+                done
+                echo "::error::SUT nao respondeu em 60s"
+                tail -n 50 "$GITHUB_WORKSPACE/sut.log" || echo "(log vazio)"
+                exit 1
             
             - name: publica evidencias
               if: always()
               uses: actions/upload-artifact@v6
               with:
                 name: evidencias-testes-${{ github.run_id }}
-                path:
+                path: |
                     tas/relatorios/
+                    sut.log
                 retention-days: 14
                 if-no-files-found: warn
 
