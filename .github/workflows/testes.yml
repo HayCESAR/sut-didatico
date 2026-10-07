@@ -3,6 +3,9 @@ name: testes
 on:
   workflow_dispatch:
 
+env:
+  BASE_URL: 'http://localhost:3000'
+
 jobs:
   rapido:
     name: 'testando esteira'
@@ -42,7 +45,7 @@ jobs:
       
       - name: sobe o SUT didatico em segundo plano
         working-directory: sut-didatico
-        run: setsid nohup npm start > "$GITHUB_WORKSPACE/sut.log" 2>&1 &
+        run: npm start > "$GITHUB_WORKSPACE/sut.log" 2>&1 &
 
       - name: aguarda o SUT responder
         run: |
