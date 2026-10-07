@@ -2,7 +2,7 @@ name: testes
 
 on:
     push:
-        paths-ignore: ['**/.md', ' /docs/*']
+        paths-ignore: ['**/*.md', ' /docs/**']
     workflow_dispatch:
 
 jobs:
