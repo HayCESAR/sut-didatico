@@ -5,9 +5,23 @@ on:
 
 jobs:
   rapido:
-    name: 'estagios 1 e 2: build, unidade e API'
+    name: 'testando esteira'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: alo
-        run: echo "a esteira executou"
+      - name: checkout do SUT (commit em analise)
+        uses: actions/checkout@v5
+        with:
+          path: sut-didatico
+
+      - name: checkout da TAS (onde vivem os testes)
+        uses: actions/checkout@v5
+        with:
+          repository: SUA-CONTA/tas-cidade-conectada
+          ref: main
+          path: tas
+
+      - name: onde eu estou
+        run: |
+          echo "workspace: $GITHUB_WORKSPACE"
+          ls -la "$GITHUB_WORKSPACE"
