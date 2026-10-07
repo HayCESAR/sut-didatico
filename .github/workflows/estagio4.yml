@@ -2,7 +2,7 @@ name: estagio 4
 
 on:
   schedule:
-    - cron: '30 19 * * *'  
+    - cron: '40 19 * * *'  
   workflow_dispatch:
 
 env:
