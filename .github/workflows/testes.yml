@@ -4,10 +4,24 @@ on:
     workflow_dispatch:
 
 jobs:
-    teste_esteira:
-        name: 'testando'
+    regressao:
+        name: 'regressao'
         runs-on: ubuntu-latest
-        timeout-minutes: 10
+        timeout-minutes: 30
         steps:
-            - name: alo
-              run: echo "a esteira executou"
+            - name: checkout do SUT
+              uses: actions/checkout@v5
+              with:
+                path: sut-didatico
+            
+            - name: checkout do TAS (onde vivem os testes)
+              uses: actions/checkout@v5
+              with:
+                repository: HayCESAR/tas-cidade-conectada
+                ref: main
+                path: tas
+            
+            - name: onde eu estou
+              run: |
+                echo "workspace: $GITHUB_WOKSPACE"
+                ls -la "$GITHUB_WOKSPACE"
