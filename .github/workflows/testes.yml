@@ -36,12 +36,15 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '24.19.0'
-  TAS_REPO: 'HayCESAR/tas-cidade-conectada'
-  TAS_REF: 'main'
+  # Runtime em que OS TESTES executam. Não tem relação com o runtime das
+  # actions: o aviso "Node.js 20 is deprecated" vem do `runs: using:` de cada
+  # action, e só se resolve subindo o major da action (ver nota no fim).
+  NODE_VERSION: '24'
+  TAS_REPO: 'HayCESAR/tas-cidade-conectada'   # (1) AJUSTAR: owner/repo da TAS
+  TAS_REF: 'main'                             # ver nota sobre fixar versão, no fim do arquivo
   PORT: '3000'
   BASE_URL: 'http://localhost:3000'
-  MAESTRO_VERSION: '2.9.0'
+  MAESTRO_VERSION: '1.39.0'           # (1) AJUSTAR: confirmar versão corrente
 
 jobs:
 
@@ -59,12 +62,12 @@ jobs:
       # ESTE repositório, já posicionado no commit que o push ou o PR propõe.
       # É isso que torna o resultado uma afirmação sobre a mudança em análise.
       - name: checkout do SUT (commit em analise)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: sut-didatico
 
       - name: checkout da TAS
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.TAS_REPO }}
           ref: ${{ env.TAS_REF }}
@@ -73,7 +76,7 @@ jobs:
           # token: ${{ secrets.TOKEN_TAS }}
 
       # ---------- C2: dependências ----------
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           # SEM `cache: npm`: nenhum dos dois projetos tem package-lock.json,
@@ -189,7 +192,7 @@ jobs:
 
       - name: publica evidencias
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: evidencias-rapido-${{ github.run_id }}
           path: |
@@ -220,18 +223,18 @@ jobs:
 
     steps:
       - name: checkout do SUT (commit em analise)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: sut-didatico
 
       - name: checkout da TAS
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.TAS_REPO }}
           ref: ${{ env.TAS_REF }}
           path: tas
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -272,7 +275,7 @@ jobs:
 
       - name: publica evidencias do E2E
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: evidencias-e2e-${{ github.run_id }}
           path: |
@@ -297,18 +300,18 @@ jobs:
 
     steps:
       - name: checkout do SUT (commit em analise)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: sut-didatico
 
       - name: checkout da TAS
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ env.TAS_REPO }}
           ref: ${{ env.TAS_REF }}
           path: tas
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -336,7 +339,7 @@ jobs:
 
       - name: publica evidencias
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: evidencias-regressao-${{ github.run_id }}
           path: |
@@ -370,4 +373,24 @@ jobs:
 #
 # Escolha e registre a decisão na seção 7 de docs/tas.md. A escolha
 # errada é não escolher: aí toda variação vira "flaky".
+# ===================================================================
+
+# ===================================================================
+# NOTA: dois "Node" diferentes, e qual deles o aviso de deprecação cita
+#
+# 1. NODE_VERSION, acima, é o runtime em que OS TESTES executam. O
+#    setup-node instala essa versão no runner. Mudá-la não altera o aviso.
+#
+# 2. Cada action traz, no próprio action.yml, a declaração
+#    `runs: using: nodeXX`, que é o runtime em que A ACTION executa. Era
+#    `node20` em checkout@v4, setup-node@v4 e upload-artifact@v4, e é
+#    exatamente essa linha que o aviso reporta. A correção é subir o major:
+#
+#      actions/checkout@v4        -> @v5   (primeiro major com node24)
+#      actions/setup-node@v4      -> @v5   (idem)
+#      actions/upload-artifact@v4 -> @v6   (v5 ainda usa node20)
+#
+#    Calendário anunciado pelo GitHub: Node 24 forçado a partir de
+#    2026-06-02, e Node 20 removido do runner em 2026-09-16. Confirme o
+#    estado atual na página de releases de cada action antes da aula.
 # ===================================================================
