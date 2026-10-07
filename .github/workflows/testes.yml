@@ -48,7 +48,7 @@ jobs:
 
             - name: sobe o SUT em segundo plano
               working-directory: sut-didatico
-              run: nohup npm start > "GITHUB_WORKSPACE/sut.log" 2>&1 &
+              run: nohup npm start > "$GITHUB_WORKSPACE/sut.log" 2>&1 &
 
             - name: aguardar o SUT responder
               run: |
