@@ -17,7 +17,7 @@ jobs:
       - name: checkout da TAS (onde vivem os testes)
         uses: actions/checkout@v5
         with:
-          repository: SUA-CONTA/tas-cidade-conectada
+          repository: HayCESAR/tas-cidade-conectada
           ref: main
           path: tas
 
