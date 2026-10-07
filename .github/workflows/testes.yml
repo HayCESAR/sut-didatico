@@ -17,7 +17,7 @@ jobs:
       - name: checkout da TAS (onde vivem os testes)
         uses: actions/checkout@v5
         with:
-          repository: SUA-CONTA/tas-cidade-conectada
+          repository: HayCESAR/tas-cidade-conectada
           ref: main
           path: tas
 
@@ -25,7 +25,6 @@ jobs:
         run: |
           echo "workspace: $GITHUB_WORKSPACE"
           ls -la "$GITHUB_WORKSPACE"
-
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
@@ -40,3 +39,29 @@ jobs:
         run: |
           mkdir -p relatorios
           npm run test:unidade
+      
+      - name: sobe o SUT didatico em segundo plano
+        working-directory: sut-didatico
+        run: nohup node start > "$GITHUB_WORKSPACE/sut.log" 2>&1 &
+
+      - name: aguarda o SUT responder
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE_URL/api/v1/demands" || true)
+            if [ "$code" = "401" ] || [ "$code" = "200" ]; then
+              echo "SUT respondeu em ${i}s (HTTP $code)"; exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::SUT nao respondeu em 60s"
+          tail -n 50 "$GITHUB_WORKSPACE/sut.log" || echo "(log vazio)"
+          exit 1
+          
+      - name: publica evidencias
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: evidencias-unidade-${{ github.run_id }}
+          path: tas/relatorios/
+          retention-days: 14
+          if-no-files-found: err
