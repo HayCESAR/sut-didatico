@@ -67,4 +67,4 @@ jobs:
           name: evidencias-unidade-${{ github.run_id }}
           path: tas/relatorios/
           retention-days: 14
-          if-no-files-found: err
+          if-no-files-found: warn
