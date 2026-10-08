@@ -63,6 +63,17 @@ jobs:
                 tail -n 50 "$GITHUB_WORKSPACE/sut.log" || echo "(log vazio)"
                 exit 1
             
+            - name: suite de API
+              id: api
+              working-directory: tas
+              env:
+                NODE_OPTIONS: >-
+                    --test-reporter=spec --test-reporter-destination=stdout
+                    --test-reporter=junit --test-reporter-destination=relatorios/api.xml
+              run: |
+                mkdir -p relatorios
+                npm run test:api
+            
             - name: publica evidencias
               if: always()
               uses: actions/upload-artifact@v6
