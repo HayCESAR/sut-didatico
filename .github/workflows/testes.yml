@@ -114,6 +114,7 @@ jobs:
                     echo "|---|---|"
                     echo "| unidade | ${{ steps.unidade.outcome }} |"
                     echo "| api | ${{ steps.api.outcome }} |"
+                    echo "| e2e | ${{ steps.e2e.outcome }} |"
                 } >> "$GITHUB_STEP_SUMMARY"
             
             - name: publica evidencias
@@ -127,3 +128,13 @@ jobs:
                 retention-days: 14
                 if-no-files-found: warn
 
+            - name: abre item de manutencao
+              if: failure()
+              env:
+                GH_TOKEN: ${{ github.token }}
+                GH_REPO: ${{ github.repository }}
+              run: |
+                gh issue create \
+                    --title "A suite de regressão reprovou em $(date +%F)"
+                    --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    --label manutencao
