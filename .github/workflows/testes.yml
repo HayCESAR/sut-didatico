@@ -74,6 +74,17 @@ jobs:
                 mkdir -p relatorios
                 npm run test:api
             
+            - name: resumo dos estagios
+              if: always()
+              run: |
+               {
+                    echo "## Resultados"
+                    echo "| Suite | Resultado |"
+                    echo "|---|---|"
+                    echo "| unidade | ${{ steps.unidade.outcome }} |"
+                    echo "| api | ${{ steps.api.outcome }} |"
+                } >> "$GITHUB_STEP_SUMMARY"
+            
             - name: publica evidencias
               if: always()
               uses: actions/upload-artifact@v6
