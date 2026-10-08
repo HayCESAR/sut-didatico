@@ -138,6 +138,6 @@ jobs:
                 GH_REPO: ${{ github.repository }}
               run: |
                 gh issue create \
-                    --title "A suite de regressão reprovou em $(date +%F)"
-                    --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    --title "A suite de regressão reprovou em $(date +%F)" \
+                    --body "Execucao: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
                     --label manutencao
