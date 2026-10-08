@@ -84,7 +84,7 @@ jobs:
             - name: instala o Maestro
               env:
                 MAESTRO_CLI_NO_ANALYTICS: '1'
-              run:
+              run: |
                 export MAESTRO_VERSION="${{ env.MAESTRO_VERSION }}"
                 curl -Ls "https://get.maestro.mobile.dev" | bash
                 echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
