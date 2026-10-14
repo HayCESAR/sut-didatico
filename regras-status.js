@@ -4,7 +4,7 @@ const TRANSICOES = {
   RECEIVED:       ['UNDER_ANALYSIS', 'REJECTED'],
   UNDER_ANALYSIS: ['IN_PROGRESS', 'REJECTED'],
   IN_PROGRESS:    ['RESOLVED'],
-  RESOLVED:       ['REJECTED'],
+  RESOLVED:       [],
   REJECTED:       [],
 };
 
