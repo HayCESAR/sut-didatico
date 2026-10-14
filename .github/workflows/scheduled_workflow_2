@@ -1,0 +1,31 @@
+name: diag-timezone
+
+on:
+  schedule:
+    - cron: '30 17 * * *'
+      timezone: 'America/Recife'
+    - cron: '40 20 * * *'
+      timezone: 'America/Recife'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  registrar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: evidencia
+        run: |
+          case "${{ github.event.schedule }}" in
+            "30 17 * * *") H="A: timezone honrado" ;;
+            "40 20 * * *") H="C: timezone ignorado" ;;
+            *)             H="disparo manual" ;;
+          esac
+          {
+            echo "### $H"
+            echo "- evento: ${{ github.event_name }}"
+            echo "- cron: ${{ github.event.schedule || 'n/a' }}"
+            echo "- real UTC: $(date -u +%FT%TZ)"
+            echo "- real Recife: $(TZ=America/Recife date +%FT%T)"
+          } >> "$GITHUB_STEP_SUMMARY"
