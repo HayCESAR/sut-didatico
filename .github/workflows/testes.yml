@@ -4,7 +4,8 @@ on:
     push:
         paths-ignore: ['**/*.md', ' /docs/**']
     schedule:
-        - cron: '0 13 * * *'
+        - cron: '15 10 * * *'
+            timezone: 'America/Recife'
     workflow_dispatch:
 
 env:
