@@ -3,6 +3,8 @@ name: testes
 on:
     push:
         paths-ignore: ['**/*.md', ' /docs/**']
+    schedule:
+        - cron: '0 13 * * *'
     workflow_dispatch:
 
 env:
