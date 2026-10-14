@@ -1,0 +1,30 @@
+name: diag-controle
+
+on:
+  schedule:
+    - cron: '55 20 * * *'
+    - cron: '25 21 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  registrar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: evidencia
+        run: |
+          case "${{ github.event.schedule }}" in
+            "55 20 * * *") R="controle 1, esperado 20:55 UTC" ;;
+            "25 21 * * *") R="controle 2, esperado 21:25 UTC" ;;
+            *)             R="disparo manual" ;;
+          esac
+          {
+            echo "### CONTROLE (cron em UTC puro, sem campo timezone)"
+            echo "- rotulo: $R"
+            echo "- evento: ${{ github.event_name }}"
+            echo "- cron: ${{ github.event.schedule || 'n/a' }}"
+            echo "- real UTC: $(date -u +%FT%TZ)"
+            echo "- real Recife: $(TZ=America/Recife date +%FT%T)"
+          } >> "$GITHUB_STEP_SUMMARY"
